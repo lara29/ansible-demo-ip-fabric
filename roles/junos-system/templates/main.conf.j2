@@ -3,15 +3,6 @@
 system {
     host-name {{ inventory_hostname }};
 {# the location is based on whether this is site 1 or site 2. Using the variables in this way you apply site specific values without having to use conditional checks. #}
-    time-zone {{ global.time_zone }};
-    root-authentication {
-        encrypted-password "{{ global.root_hash }}";
-    }
-    name-server {
-{% for name_server in global.name_servers %}
-        {{ name_server }};
-{% endfor %}
-    }
     services {
         netconf {
             ssh;
@@ -34,40 +25,14 @@ system {
         }
         time-format millisecond;
     }
-    ntp {
-{% for ntp_server in global.ntp_servers %}
-        server {{ ntp_server }};
-{% endfor %}
-    }
 }
 interfaces {
-    {{ mgmt_port }} {
-        unit 0 {
-            family inet {
-              address {{ junos_host }}/{{ mgmt_sub_mask }};
-            }
-        }
-    }
     lo0 {
         unit 0 {
             family inet {
                 address {{ loopback_ip }}/32
             }
         }
-    }
-}
-snmp {
-    location "{{ global.snmp.location }}";
-    contact "{{ global.snmp.contact }}";
-{% for snmp in global.snmp.polling %}
-    community {{ snmp.community }} {
-        authorization read-only;
-    }
-{% endfor %}
-}
-routing-options {
-    static {
-        route 0.0.0.0/0 next-hop {{ mgmt_sub_gw }};
     }
 }
 
